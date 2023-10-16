@@ -4,6 +4,9 @@ from . import anthropic_llms
 from . import huggingface
 from . import textsynth
 from . import dummy
+from transformers.models.llama import LlamaForCausalLM
+from transformers import AutoModelForCausalLM
+
 
 MODEL_REGISTRY = {
     "hf": gpt2.HFLM,

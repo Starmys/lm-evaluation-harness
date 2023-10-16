@@ -11,6 +11,10 @@ from lm_eval.models.gpt2 import HFLM
 
 import numpy as np
 import transformers
+from transformers import AutoConfig
+from transformers.models.llama import LlamaForCausalLM
+
+from quantize_linear import load_quant
 
 
 @positional_deprecated
@@ -30,6 +34,7 @@ def simple_evaluate(
     decontamination_ngrams_path=None,
     write_out=False,
     output_base_path=None,
+    quant_args=None,
 ):
     """Instantiate and evaluate a model on a list of tasks.
 
@@ -86,6 +91,13 @@ def simple_evaluate(
     else:
         assert isinstance(model, lm_eval.base.LM)
         lm = model
+
+    lm.model = lm.model.half()
+    if quant_args is not None:
+        no_cache = True
+        quant_args = {k: v for k, v in [x.split('=') for x in quant_args.replace('"', '').split(',')]}
+        print('==========', quant_args['w_bits'], quant_args['a_bits'], '==========')
+        lm.model = load_quant(lm.model, **quant_args)
 
     if not no_cache:
         lm = lm_eval.base.CachingLM(
