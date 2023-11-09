@@ -18,6 +18,7 @@ MODEL_REGISTRY = {
     "anthropic": anthropic_llms.AnthropicLM,
     "textsynth": textsynth.TextSynthLM,
     "dummy": dummy.DummyLM,
+    "llava": LlamaForCausalLM,
 }
 
 

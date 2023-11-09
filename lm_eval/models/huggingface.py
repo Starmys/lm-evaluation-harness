@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import List, Mapping, NewType, Optional, Tuple, Union
 from tqdm import tqdm
 
-from transformers import BatchEncoding
+from transformers import BatchEncoding, LlamaConfig, LlamaForCausalLM
 
 from lm_eval import utils
 from lm_eval.base import BaseLM
@@ -203,11 +203,18 @@ class HuggingFaceAutoLM(BaseLM):
 
         self._max_gen_toks = max_gen_toks
         self._max_length = max_length
-        self._config = self.AUTO_CONFIG_CLASS.from_pretrained(
-            pretrained,
-            trust_remote_code=trust_remote_code,
-            revision=revision + ("/" + subfolder if subfolder is not None else ""),
-        )
+        try:
+            self._config = self.AUTO_CONFIG_CLASS.from_pretrained(
+                pretrained,
+                trust_remote_code=trust_remote_code,
+                revision=revision + ("/" + subfolder if subfolder is not None else ""),
+            )
+        except KeyError:
+            self._config = LlamaConfig.from_pretrained(
+                pretrained,
+                trust_remote_code=trust_remote_code,
+                revision=revision + ("/" + subfolder if subfolder is not None else ""),
+            )
 
         self._add_special_tokens = add_special_tokens
         self.tokenizer = self._create_auto_tokenizer(
@@ -311,18 +318,32 @@ class HuggingFaceAutoLM(BaseLM):
                         model_kwargs[
                             "bnb_4bit_use_double_quant"
                         ] = bnb_4bit_use_double_quant
-            model = self.AUTO_MODEL_CLASS.from_pretrained(
-                pretrained,
-                revision=revision + ("/" + subfolder if subfolder is not None else ""),
-                low_cpu_mem_usage=low_cpu_mem_usage,
-                device_map=device_map,
-                max_memory=max_memory,
-                offload_folder=offload_folder,
-                load_in_8bit=load_in_8bit,
-                trust_remote_code=trust_remote_code,
-                torch_dtype=torch_dtype,
-                **model_kwargs,
-            )
+            try:
+                model = self.AUTO_MODEL_CLASS.from_pretrained(
+                    pretrained,
+                    revision=revision + ("/" + subfolder if subfolder is not None else ""),
+                    low_cpu_mem_usage=low_cpu_mem_usage,
+                    device_map=device_map,
+                    max_memory=max_memory,
+                    offload_folder=offload_folder,
+                    load_in_8bit=load_in_8bit,
+                    trust_remote_code=trust_remote_code,
+                    torch_dtype=torch_dtype,
+                    **model_kwargs,
+                )
+            except KeyError:
+                model = LlamaForCausalLM.from_pretrained(
+                    pretrained,
+                    revision=revision + ("/" + subfolder if subfolder is not None else ""),
+                    low_cpu_mem_usage=low_cpu_mem_usage,
+                    device_map=device_map,
+                    max_memory=max_memory,
+                    offload_folder=offload_folder,
+                    load_in_8bit=load_in_8bit,
+                    trust_remote_code=trust_remote_code,
+                    torch_dtype=torch_dtype,
+                    **model_kwargs,
+                )
         else:
             from auto_gptq import AutoGPTQForCausalLM
 

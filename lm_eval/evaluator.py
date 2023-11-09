@@ -101,7 +101,7 @@ def simple_evaluate(
     if quant_args is not None:
         no_cache = True
         quant_args = {k: v for k, v in [x.split('=') for x in quant_args.replace('"', '').split(',')]}
-        print('==========', quant_args['w_bits'], quant_args['a_bits'], '==========')
+        print(f'[Quant Args] {quant_args}')
         lm.model = load_quant(lm.model, **quant_args)
 
     if not no_cache:
