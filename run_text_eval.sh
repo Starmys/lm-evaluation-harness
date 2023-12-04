@@ -12,8 +12,26 @@
 python main.py \
     --model hf-causal-experimental \
     --model_args pretrained="/home/chengzhang/models/llava/llava-v1.5-7b" \
-    --quant_args quant_checkpoint="/home/chengzhang/Multimodal-Quantization/GPTQ-for-LLaMa/models/llava-1.5-7b-c4-4bit.pt",w_bits=4,a_bits=4,act_quant_func="lut.text",act_quant_dim=1,act_token_split=0,outliers_thres=0 \
+    --quant_args w_bits=32,a_bits=4,act_quant_func="lut.text",act_token_split=0 \
     --tasks piqa,boolq \
     --device cuda:0 \
     --batch_size 8 \
-    --output_path /home/chengzhang/Multimodal-Quantization/evaluation/Harness/llava-v1.5-7b-gptq-c4-w4a4-lut.json
+    --output_path /home/chengzhang/Multimodal-Quantization/evaluation/Harness/llava-v1.5-7b-gptq-c4-w32a4-lut.text.json
+
+python main.py \
+    --model hf-causal-experimental \
+    --model_args pretrained="/home/chengzhang/models/llava/llava-v1.5-7b" \
+    --quant_args w_bits=32,a_bits=4,act_quant_func="lut.vision",act_token_split=0 \
+    --tasks piqa,boolq \
+    --device cuda:0 \
+    --batch_size 8 \
+    --output_path /home/chengzhang/Multimodal-Quantization/evaluation/Harness/llava-v1.5-7b-gptq-c4-w32a4-lut.vision.json
+
+python main.py \
+    --model hf-causal-experimental \
+    --model_args pretrained="/home/chengzhang/models/llava/llava-v1.5-7b" \
+    --quant_args w_bits=32,a_bits=4,act_quant_func="lut.hybrid",act_token_split=0 \
+    --tasks piqa,boolq \
+    --device cuda:0 \
+    --batch_size 8 \
+    --output_path /home/chengzhang/Multimodal-Quantization/evaluation/Harness/llava-v1.5-7b-gptq-c4-w32a4-lut.hybrid.json
